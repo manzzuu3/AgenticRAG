@@ -143,20 +143,45 @@ def run_command(command):
 def start_services():
     """Start the API and UI services."""
     print("\n" + "=" * 50)
-    print("Starting Services")
+    print(" STARTING NG12 AGENT SERVICES")
     print("=" * 50)
     
-    print("[1/2] Starting API (FastAPI)...")
-    api_proc = run_command("uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload")
+    # Detect if we are in Docker
+    in_docker = os.path.exists('/.dockerenv')
     
-    print("[2/2] Starting UI (Streamlit)...")
+    # Define ports (internal)
+    api_port = 8000
+    ui_port = 8501
+    
+    # If in docker, we might be mapped to different ports on host
+    # We use 8001 and 8502 in our compose, so we can hint at that
+    api_host_url = "http://localhost:8001" if in_docker else f"http://localhost:{api_port}"
+    ui_host_url = "http://localhost:8502" if in_docker else f"http://localhost:{ui_port}"
+
+    print(f"[1/2] Starting API (FastAPI) on port {api_port}...")
+    api_proc = run_command(f"uvicorn src.api.main:app --host 0.0.0.0 --port {api_port} --reload")
+    
+    print(f"[2/2] Starting UI (Streamlit) on port {ui_port}...")
     time.sleep(2)
-    ui_proc = run_command("streamlit run src/ui/streamlit_app.py --server.headless true")
+    # Use --server.address 0.0.0.0 but we will print localhost for the user
+    ui_proc = run_command(f"streamlit run src/ui/streamlit_app.py --server.port {ui_port} --server.address 0.0.0.0 --server.headless true")
     
-    print("\nApp is Running!")
-    print("   API Docs: http://localhost:8000/docs")
-    print("   Chat UI:  http://localhost:8501")
-    print("\n(Press Ctrl+C to stop)")
+    print("\n" + "*" * 50)
+    print("APPLICATION STARTED SUCCESSFULLY!")
+    print("*" * 50)
+    
+    if in_docker:
+        print("\nRUNNING IN DOCKER")
+        print(f"Access Chat UI: {ui_host_url}")
+        print(f"Access API Docs: {api_host_url}/docs")
+        print("\nNote: These are the standard ports defined in your docker-compose.yml")
+    else:
+        print("\nRUNNING LOCALLY")
+        print(f"Access Chat UI: {ui_host_url}")
+        print(f"Access API Docs: {api_host_url}/docs")
+    
+    print("\n(Press Ctrl+C to stop services)")
+    print("*" * 50 + "\n")
     
     try:
         while True:

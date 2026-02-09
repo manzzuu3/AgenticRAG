@@ -9,9 +9,11 @@ A clinical decision support system using Vertex AI and RAG to help assess cancer
     ```bash
     GOOGLE_CLOUD_PROJECT=your-project-id
     GOOGLE_CLOUD_LOCATION=us-central1
-    GOOGLE_APPLICATION_CREDENTIALS=path/to/credentials.json
+    GOOGLE_APPLICATION_CREDENTIALS=credentials.json
     MODEL_NAME=gemini-2.0-flash-001
     ```
+    > [!NOTE]
+    > `GOOGLE_APPLICATION_CREDENTIALS` should point to your JSON key file (e.g., `credentials.json`) placed in the project root. This file is the API JSON file for google cloud access credentials. You can download it from the Google Cloud Console.
 
 2.  **Run Application**:
     Using `uv` (recommended):
@@ -42,10 +44,36 @@ agneticrag/
 │   ├── tools/         # RAG and lookup tools
 │   └── ui/            # Streamlit frontend
 ├── main.py            # Main entry point (starts all services)
+├── credentials.json  # GCP Credentials (you provide this)
 └── pyproject.toml     # Dependency management
 ```
 
-## 📋 Available Patients (for testing)
+## Docker
+
+Run the entire stack using Docker Compose or direct Docker commands. Both ensure proper port mapping to host **8001** (API) and **8502** (UI) to avoid local conflicts.
+
+### Option 1: Docker Compose (Recommended)
+
+1.  **Prepare Credentials**: Ensure `credentials.json` is in the project root.
+2.  **Launch**:
+    ```bash
+    docker-compose up --build
+    ```
+- **API (Host)**: http://localhost:8001
+- **UI (Host)**: http://localhost:8502
+
+### Option 2: Docker Build & Run (Single Container)
+
+1.  **Build Image**:
+    ```bash
+    docker build -t ng12-agent .
+    ```
+2.  **Run Container**:
+    ```bash
+    docker run -p 8001:8000 -p 8502:8501 --env-file .env ng12-agent
+    ```
+
+## Available Patients (for testing)
 
 | ID | Name | Symptom |
 |----|------|---------|
@@ -55,14 +83,9 @@ agneticrag/
 | PT-104 | Sarah Connor | Dysphagia |
 | PT-105 | Michael Chang | Iron-deficiency anaemia |
 
-## 🛠 Troubleshooting
+## Evaluation
 
-- **API Errors**: Ensure your Google Cloud credentials are valid and Vertex AI is enabled.
-- **Rate Limits**: The pipeline includes automatic retries for API rate limits.
-
-## 🧪 Evaluation
-
-Run the automated test suite to verify the agent's performance against patient cases:
+Run the automated test suite to verify the agent's performance:
 
 ```bash
 uv run python -m src.evaluation.evaluate
@@ -71,4 +94,8 @@ uv run python -m src.evaluation.evaluate
 - **Note**: This must be run from the root directory to ensure all module imports are resolved correctly.
 - **Expected Results**: The suite evaluates 4 patient cases and provides a pass/fail summary.
 
-- **Docker**: For containerized deployment, run `docker-compose up --build`.
+## Troubleshooting
+
+- **API Errors**: Ensure your Google Cloud credentials are valid and Vertex AI is enabled.
+- **Rate Limits**: The pipeline includes automatic retries for API rate limits.
+- **Protobuf Errors**: If you see Protobuf errors in Docker, ensure `PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python` is set in your environment.

@@ -3,29 +3,36 @@ version: '3.8'
 services:
   api:
     build: .
-    container_name: ng12-api
+    container_name: rag-api
     command: uv run uvicorn src.api.main:app --host 0.0.0.0 --port 8000
     ports:
-      - "8000:8000"
+      - "8001:8000"
     volumes:
       - ./data:/app/data
       - ./src:/app/src
+      - ./credentials.json:/app/credentials.json
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/data/credentials.json
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
       - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
       - GOOGLE_CLOUD_LOCATION=${GOOGLE_CLOUD_LOCATION}
+      - MODEL_NAME=${MODEL_NAME}
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     restart: unless-stopped
 
   ui:
     build: .
-    container_name: ng12-ui
+    container_name: rag-ui
     command: uv run streamlit run src/ui/streamlit_app.py --server.port 8501 --server.address 0.0.0.0
     ports:
-      - "8501:8501"
+      - "8502:8501"
     volumes:
       - ./src:/app/src
+      - ./credentials.json:/app/credentials.json
     environment:
       - API_URL=http://api:8000
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+      - MODEL_NAME=${MODEL_NAME}
+      - PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     depends_on:
       - api
     restart: unless-stopped
