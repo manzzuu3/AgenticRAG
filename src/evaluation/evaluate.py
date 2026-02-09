@@ -20,9 +20,9 @@ async def eval_patient(patient_id: str, description: str):
     try:
         response = await run_chat(session_id, prompt)
         
-        print(f"\n✓ Assessment: {response.assessment}")
-        print(f"✓ Reasoning: {response.reasoning[:150]}...")
-        print(f"✓ Citations: {len(response.citations)} found")
+        print(f"\nAssessment: {response.assessment}")
+        print(f"Reasoning: {response.reasoning[:150]}...")
+        print(f"Citations: {len(response.citations)} found")
         
         if response.citations:
             print("\nCitation samples:")
@@ -32,7 +32,7 @@ async def eval_patient(patient_id: str, description: str):
         return True
         
     except Exception as e:
-        print(f"✗ Error: {str(e)}")
+        print(f"Evaluation failed for {patient_id}: {str(e)[:100]}")
         return False
 
 async def main():
@@ -42,10 +42,10 @@ async def main():
     
     # Verify pipeline is loaded
     if rag_tool.index is None:
-        print("✗ FAILED: FAISS index not loaded. Run 'python main.py' first.")
+        print("FAILED: FAISS index not loaded. Run 'python main.py' first.")
         return
-    print("✓ Pipeline loaded (FAISS index ready)")
-    print(f"✓ Patient database loaded ({len(PATIENTS)} patients)")
+    print("Pipeline loaded (FAISS index ready)")
+    print(f"Patient database loaded ({len(PATIENTS)} patients)")
     
     test_cases = [
         ("PT-101", "Hemoptysis - high risk"),

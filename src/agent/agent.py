@@ -89,17 +89,19 @@ async def run_chat(session_id: str, message: str) -> ClinicalAssessment:
     db = DatabaseManager()
     history = await db.get_history(session_id)
     
+    # Save user message to database
+    await db.add_message(session_id, "user", message)
+    
     # Build context from last 3 exchanges
     if history:
         recent = history[-6:]
         context = "\n".join([f"{'User' if m['role']=='user' else 'Assistant'}: {m['content']}" for m in recent])
-        full_message = f"Previous conversation:\n{context}\n\nCurrent question: {message}"
+        full_message = f"Previous conversation (for context):\n{context}\n\nCurrent user question: {message}"
     else:
         full_message = message
     
-    
     # Retry logic for rate limits
-    max_retries = 5
+    max_retries = 3
     base_delay = 2
     
     for attempt in range(max_retries):
@@ -108,8 +110,12 @@ async def run_chat(session_id: str, message: str) -> ClinicalAssessment:
             result = await clinical_agent.run(
                 full_message,
                 deps=session_id,
-                usage_limits=UsageLimits(request_limit=40)
+                usage_limits=UsageLimits(request_limit=10)
             )
+            
+            # Save assistant message to database
+            await db.add_message(session_id, "assistant", result.output.summary)
+            
             break
         except ModelHTTPError as e:
             if e.status_code == 429 and attempt < max_retries - 1:
