@@ -1,0 +1,123 @@
+/* Minimal Chat UI - Inspired by modern AI chat interfaces */
+
+/* Dark theme base */
+:root {
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2a2a2a;
+    --bg-chat-user: #3a3a3a;
+    --bg-chat-assistant: #2d2d2d;
+    --text-primary: #e5e5e5;
+    --text-secondary: #a0a0a0;
+    --border-color: #404040;
+    --accent: #6c8af7;
+}
+
+/* Main container */
+.stApp {
+    background-color: var(--bg-primary);
+}
+
+/* Chat input styling */
+.stChatInput {
+    background-color: var(--bg-secondary);
+    border-radius: 24px;
+}
+
+.stChatInput textarea {
+    background-color: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 24px !important;
+    color: var(--text-primary) !important;
+    padding: 12px 20px !important;
+}
+
+.stChatInput textarea:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 1px var(--accent) !important;
+}
+
+/* Chat messages */
+.stChatMessage {
+    background-color: transparent !important;
+    padding: 16px 0 !important;
+}
+
+[data-testid="stChatMessageContent"] {
+    background-color: transparent !important;
+    color: var(--text-primary) !important;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
+}
+
+[data-testid="stSidebar"] .stButton button {
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+[data-testid="stSidebar"] .stButton button:hover {
+    background-color: var(--bg-chat-user);
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+}
+
+/* Expander (citations) */
+.streamlit-expanderHeader {
+    background-color: transparent !important;
+    color: var(--text-secondary) !important;
+    font-size: 13px !important;
+    border: none !important;
+}
+
+.streamlit-expanderContent {
+    background-color: var(--bg-secondary) !important;
+    border-radius: 8px;
+    padding: 12px !important;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Title */
+h1 {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+    font-size: 1.5rem !important;
+}
+
+/* Spinner */
+.stSpinner>div {
+    border-top-color: var(--accent) !important;
+}
+
+/* Error messages */
+.stAlert {
+    background-color: rgba(255, 80, 80, 0.1) !important;
+    border: 1px solid rgba(255, 80, 80, 0.3) !important;
+    border-radius: 8px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
