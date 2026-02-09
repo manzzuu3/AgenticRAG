@@ -110,7 +110,7 @@ async def run_chat(session_id: str, message: str) -> ClinicalAssessment:
             result = await clinical_agent.run(
                 full_message,
                 deps=session_id,
-                usage_limits=UsageLimits(request_limit=10)
+                usage_limits=UsageLimits(request_limit=25)
             )
             
             # Save assistant message to database
@@ -118,10 +118,15 @@ async def run_chat(session_id: str, message: str) -> ClinicalAssessment:
             
             break
         except ModelHTTPError as e:
-            if e.status_code == 429 and attempt < max_retries - 1:
-                delay = base_delay * (2 ** attempt)
-                print(f"\n[AGENT] Rate limited. Retrying in {delay}s...")
-                await asyncio.sleep(delay)
+            if e.status_code == 429:
+                if attempt < max_retries - 1:
+                    delay = base_delay * (2 ** attempt)  # Exponential backoff: 2s, 4s, 8s...
+                    print(f"\n[AGENT] Rate limited (429). Retrying in {delay}s...")
+                    await asyncio.sleep(delay)
+                    continue
+                else:
+                    print(f"\n[AGENT] Max retries exceeded for rate limit.")
+                    raise
             else:
                 raise
     

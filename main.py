@@ -149,19 +149,17 @@ def start_services():
     # Detect if we are in Docker
     in_docker = os.path.exists('/.dockerenv')
     
-    # Define ports (internal)
     api_port = 8000
     ui_port = 8501
     
-    # If in docker, we might be mapped to different ports on host
-    # We use 8001 and 8502 in our compose, so we can hint at that
-    api_host_url = "http://localhost:8001" if in_docker else f"http://localhost:{api_port}"
-    ui_host_url = "http://localhost:8502" if in_docker else f"http://localhost:{ui_port}"
+
+    api_host_url =  f"http://localhost:{api_port}"
+    ui_host_url =  f"http://localhost:{ui_port}"
 
     print(f"[1/2] Starting API (FastAPI) on port {api_port}...")
     api_proc = run_command(f"uvicorn src.api.main:app --host 0.0.0.0 --port {api_port} --reload")
     
-    print(f"[2/2] Starting UI (Streamlit) on port {ui_port}...")
+    print(f"[2/2] Starting UI (Streamlit) on port {api_host_url}...")
     time.sleep(2)
     # Use --server.address 0.0.0.0 but we will print localhost for the user
     ui_proc = run_command(f"streamlit run src/ui/streamlit_app.py --server.port {ui_port} --server.address 0.0.0.0 --server.headless true")
